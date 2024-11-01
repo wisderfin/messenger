@@ -3,6 +3,6 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/DockerfileApp
-    command: sh -c "python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    command: sh -c "python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     ports:
       - "${API_PORT_TO}:${API_PORT_FROM}"
