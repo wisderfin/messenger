@@ -1,0 +1,17 @@
+# Используем базовый образ Python
+FROM python:3.11-slim
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем файл зависимостей
+COPY ../requirements.txt .
+
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем код приложения
+COPY ../app ./app
+
+# Указываем, что приложение будет слушать на порту 8000
+EXPOSE 8000
