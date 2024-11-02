@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем код приложения
 COPY ../app ./app
-COPY .env .
+COPY .env ./.env
 
 # Указываем, что приложение будет слушать на порту 8000
 EXPOSE 8000

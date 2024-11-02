@@ -26,5 +26,5 @@ services:
       dockerfile: dockerfiles/DockerfileMigration
     command: alembic upgrade head
     volumes:
-      - ./migrations:/migrations
+      - ./migrations:/app/migrations
     restart: on-failure

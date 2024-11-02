@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, func
-from app import Base
+from app.dependes import Base
 
 
 class UserModel(Base):

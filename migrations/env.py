@@ -14,12 +14,12 @@ from app.models import *
 config = context.config
 
 section = config.config_ini_section
-config.set_section_option(section, "DB_HOST_FROM", settings.DB_HOST_FROM)
-config.set_section_option(section, "DB_PORT", settings.DB_PORT)
-config.set_section_option(section, "DB_DATABASE", settings.DB_DATABASE)
-config.set_section_option(section, "DB_USER", settings.DB_USER)
-config.set_section_option(section, "DB_PASSWORD", settings.DB_PASSWORD)
-config.set_section_option(section, "DB_DRIVER", settings.DB_DRIVER)
+config.set_section_option(section, "DATABASE_HOST", settings.DATABASE_HOST)
+config.set_section_option(section, "DATABASE_PORT_FROM", settings.DATABASE_PORT_FROM)
+config.set_section_option(section, "DATABASE_NAME", settings.DATABASE_NAME)
+config.set_section_option(section, "DATABASE_USER", settings.DATABASE_USER)
+config.set_section_option(section, "DATABASE_PASSWORD", settings.DATABASE_PASSWORD)
+config.set_section_option(section, "DATABASE_DRIVER", settings.DATABASE_DRIVER)
 
 
 fileConfig(config.config_file_name)

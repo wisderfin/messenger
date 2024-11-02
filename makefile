@@ -3,17 +3,17 @@ export $(shell sed -E '/^\s*#/d;/^\s*$$/d;s/=.*//' .env)
 
 # standart commands
 up:
-	docker-compose up
+	docker-compose up --remove-orphans
 upd:
-	docker-compose up -d
+	docker-compose up --remove-orphans -d
 upb:
-	docker-compose up --build
+	docker-compose up --remove-orphans --build
 upbd:
-	docker-compose up --build -d
+	docker-compose up --remove-orphans --build -d
 stop:
-	docker-compose stop
+	docker-compose stop --remove-orphans
 down:
-	docker-compose down
+	docker-compose down --remove-orphans -v
 logs:
 	docker-compose logs -f
 
@@ -31,4 +31,5 @@ psql:
 msg?=
 mgr:
 	docker-compose run migration sh -c "alembic revision --autogenerate -m '$(msg)'"
+	docker-compose run migration sh -c "alembic upgreade head"
 	docker-compose stop migration
