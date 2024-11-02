@@ -26,3 +26,4 @@ db-sh:
 	docker-compose exec database sh
 psql:
 	docker-compose exec database sh -c "psql -U $(DATABASE_USER) -d $(DATABASE_NAME)"
+Bringing up the database and getting its session
