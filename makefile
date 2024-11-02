@@ -31,5 +31,5 @@ psql:
 msg?=
 mgr:
 	docker-compose run migration sh -c "alembic revision --autogenerate -m '$(msg)'"
-	docker-compose run migration sh -c "alembic upgreade head"
+	docker-compose run migration sh -c "alembic upgrade head"
 	docker-compose stop migration
