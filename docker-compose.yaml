@@ -19,3 +19,12 @@ services:
     ports:
       - "${API_PORT_TO}:${API_PORT_FROM}"
     restart: always
+
+  migration:
+    build:
+      context: .
+      dockerfile: dockerfiles/DockerfileMigration
+    command: alembic upgrade head
+    volumes:
+      - ./migrations:/migrations
+    restart: on-failure

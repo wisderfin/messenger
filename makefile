@@ -26,4 +26,9 @@ db-sh:
 	docker-compose exec database sh
 psql:
 	docker-compose exec database sh -c "psql -U $(DATABASE_USER) -d $(DATABASE_NAME)"
-Bringing up the database and getting its session
+
+# comands for migration-container
+msg?=
+mgr:
+	docker-compose run migration sh -c "alembic revision --autogenerate -m '$(msg)'"
+	docker-compose stop migration

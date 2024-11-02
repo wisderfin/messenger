@@ -5,8 +5,11 @@ from settings import settings
 
 
 engine = create_async_engine(
-            f'{settings.DATABASE_DRIVERS}://'
-            f'{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}')
+            f'{settings.DATABASE_DRIVER}://'
+            f'{settings.DB_USER}:{settings.DATABASE_PASSWORD}@'
+            f'{settings.DATABASE_HOST}:{settings.DATABASE_PORT_FROM}\\'
+            f'{settings.DATABASE_NAME}'
+            )
 async_session_maker = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
