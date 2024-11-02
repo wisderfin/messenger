@@ -1,4 +1,14 @@
 services:
+  database:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - ${DATABASE_PORT_TO}:${DATABASE_PORT_FROM}
+
   api:
     build:
       context: .
