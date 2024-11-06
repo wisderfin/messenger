@@ -13,7 +13,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/DockerfileApp
-    command: sh -c "python -m uvicorn app.main:app --host ${API_HOST} --port ${API_PORT_FROM} --reload"
+    command: sh -c "python -B -m uvicorn app.main:app --host ${API_HOST} --port ${API_PORT_FROM} --reload"
     volumes:
       - .:/app
     ports:
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/DockerfileMigration
-    command: alembic upgrade head
+    command: sh -c "python -B -m alembic upgrade head"
     volumes:
       - ./migrations:/app/migrations
     restart: on-failure

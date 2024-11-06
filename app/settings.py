@@ -1,9 +1,9 @@
-from typing import List
 from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     # cors
-    CORS_ORIGINS: List[str]
+    CORS_ORIGINS: list[str]
 
     # database
     DATABASE_DRIVER: str
@@ -26,5 +26,6 @@ class Settings(BaseSettings):
     class Config:
         env_file = '.env'
         extra = "ignore"
+
 
 settings = Settings()
