@@ -1,6 +1,7 @@
 from bcrypt import hashpw, checkpw, gensalt
 from jwt import encode, decode
 from datetime import datetime, timedelta, timezone
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import settings
 
@@ -11,31 +12,50 @@ def hash_password(password: str) -> bytes:
 def check_password(password: str, hashed_password: bytes) -> bool:
     return checkpw(password.encode(), hashed_password)
 
-def get_access_token_jwt(name: str) -> str:
+async def get_jwt(name: str, key: str, exp: int) -> str:
+    current_time = datetime.now(timezone.utc)
+    expire_time = timedelta(minutes=exp)
     token = encode(
         {
-            'alg': settings.JWT_ALGORITHM,
-            'typ': 'JWT',
             'iss': 'messenger_auth',
             'user': name,
-            'exp': settings.JWT_ACCESS_TOKEN_EXPIRE
+            'exp': current_time + expire_time
         },
         settings.JWT_ACCESS_KEY,
         settings.JWT_ALGORITHM
     )
     return token
 
-def get_refresh_token_jwt(data: dict) -> str:
-    payload = data.copy()
-    current_time = datetime.now(timezone.utc)
-    refresh_expire = timedelta(minutes=settings.JWT_REFRESH_TOKEN_EXPIRE)
-    payload['exp'] = current_time + refresh_expire
-    refresh_token = encode(
-        payload,
-        settings.JWT_REFRESH_KEY,
-        algorithm=settings.JWT_ALGORITHM
-        )
-    return refresh_token
+async def update_jwt(access: str, refresh: str, session: AsyncSession) -> str:
+    payload = decode(access, settings.JWT_ACCESS_KEY, algorithms=[settings.JWT_ALGORITHM])
+    user = payload.get('user')
+    from app.utils import UsersUtils
+    user = await UsersUtils().get(user)
 
-def decode_jwt(token: str) -> dict:
-    return decode(token, settings.JWT_KEY, algorithms=[settings.JWT_ALGORITHM])
+    if user is None:
+        new_acces_token = None
+    # elif refresh not in DB: ---------------------------
+    #     return None
+    else:
+        new_acces_token = await get_jwt(
+            user.username,
+            settings.JWT_ACCESS_KEY,
+            settings.JWT_ACCESS_TOKEN_EXPIRE)
+
+    current_time = datetime.now(timezone.utc)
+    exp = decode(refresh, settings.JWT_REFRESH_KEY, algorithms=[settings.JWT_ALGORITHM]).get('exp')
+
+    if exp < current_time.timestamp():
+        new_refresh_token = None
+    else:
+        expire_time = timedelta(minutes=settings.JWT_REFRSH_TOKEN_EXPIRE)
+        new_refresh_token = encode(
+            {
+                'iss': 'messenger_auth',
+                'user': user.username,
+                'exp': current_time + expire_time
+            },
+            settings.JWT_REFRESH_KEY,
+            settings.JWT_ALGORITHM
+        )
+    return new_acces_token, new_refresh_token

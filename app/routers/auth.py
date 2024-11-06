@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from jwt import ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,11 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.dependes import get_async_session
 from app.services import (hash_password,
                           check_password,
-                          get_access_token_jwt,
-                          get_refresh_token_jwt,
-                          decode_jwt)
+                          get_jwt,
+                          update_jwt)
 from app.schemas.auth import LoginRequestSchema, TokenResponseSchema, CreateUserSchema
 from app.utils import UsersUtils
+from app.settings import settings
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -30,7 +30,8 @@ async def registration(user: CreateUserSchema,
     return user
 
 @router.post('/login')
-async def login(data: LoginRequestSchema = Depends(),
+async def login(response: Response,
+                data: Annotated[OAuth2PasswordRequestForm, Depends()],
                 session: AsyncSession = Depends(get_async_session)):
     user = await UsersUtils(session).get(data.username)
     if user is None:
@@ -38,11 +39,54 @@ async def login(data: LoginRequestSchema = Depends(),
     if not check_password(data.password, user.password_hash.encode()):
         return HTTPException(status_code=401, detail="Invalid password")
 
-    access_token = get_access_token_jwt(user.username)
-    refresh_token = get_refresh_token_jwt({"sub": user.username})
+    access_token = await get_jwt(
+        user.username,
+        settings.JWT_ACCESS_KEY,
+        settings.JWT_ACCESS_TOKEN_EXPIRE
+        )
+    refresh_token = await get_jwt(
+        user.username,
+        settings.JWT_REFRESH_KEY,
+        settings.JWT_REFRESH_TOKEN_EXPIRE
+        )
 
-    return {"access_token": access_token, 'token_type': 'bearer'}
+    response.set_cookie(
+        key="refresh_token_messenger",
+        value=refresh_token,
+        httponly=True,
+        max_age=settings.JWT_REFRESH_TOKEN_EXPIRE,
+        secure=True,
+        samesite="lax"
+    )
 
+
+    return {'access_token': access_token, 'token_type': 'bearer'}
+
+@router.post('/refresh')
+async def refresh(
+    access_token: Annotated[str, Depends(oauth2_scheme)],
+    request: Request,
+    response: Response,
+    session: AsyncSession = Depends(get_async_session)
+    ):
+    refresh_token = request.cookies.get("refresh_token_messenger")
+    if refresh_token is None:
+        raise HTTPException(status_code=404, detail="Refresh token not found")
+
+    access, refresh = await update_jwt(access_token, refresh_token, session)
+    if access is None or refresh is None:
+        raise HTTPException(status_code=401, detail="Expired tokens")
+
+    response.set_cookie(
+        key="refresh_token_messenger",
+        value=refresh,
+        httponly=True,
+        max_age=settings.JWT_REFRESH_TOKEN_EXPIRE,
+        secure=True,
+        samesite="lax"
+    )
+
+    return {"access_token": access, 'token_type': 'bearer'}
 
 
 
