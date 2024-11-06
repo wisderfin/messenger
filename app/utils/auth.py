@@ -11,12 +11,11 @@ class UsersUtils:
         self.session = session
 
     async def get(self, username: str) -> UserModel | None:
-        async with self.session as session:
-            result = await session.execute(
-                select(UserModel).filter_by(username=username)
-            )
-            user = result.scalar_one_or_none()
-            return user
+        result = await self.session.execute(
+            select(UserModel).filter_by(username=username)
+        )
+        user = result.scalar_one_or_none()
+        return user
 
     async def __check(self, username: str) -> bool:
         user = await self.get(username)
@@ -36,11 +35,10 @@ class UsersUtils:
                              username=username,
                              password_hash=hashed_password)
 
-        async with self.session as session:
-            session.add(new_user)
-            try:
-                await session.commit()
-                return new_user
-            except IntegrityError:
-                await session.rollback()
-                return None
+        self.session.add(new_user)
+        try:
+            await self.session.commit()
+            return new_user
+        except IntegrityError:
+            await self.session.rollback()
+            return None

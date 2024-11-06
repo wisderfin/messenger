@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from jwt import ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +14,10 @@ from app.schemas.auth import LoginRequestSchema, TokenResponseSchema, CreateUser
 from app.utils import UsersUtils
 
 router = APIRouter(prefix='/auth', tags=['auth'])
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 @router.post('/registration')
 async def registration(user: CreateUserSchema,
@@ -26,7 +30,7 @@ async def registration(user: CreateUserSchema,
     return user
 
 @router.post('/login')
-async def login(data: LoginRequestSchema,
+async def login(data: LoginRequestSchema = Depends(),
                 session: AsyncSession = Depends(get_async_session)):
     user = await UsersUtils(session).get(data.username)
     if user is None:
@@ -34,10 +38,10 @@ async def login(data: LoginRequestSchema,
     if not check_password(data.password, user.password_hash.encode()):
         return HTTPException(status_code=401, detail="Invalid password")
 
-    access_token = get_access_token_jwt({"sub": user.username})
+    access_token = get_access_token_jwt(user.username)
     refresh_token = get_refresh_token_jwt({"sub": user.username})
 
-    return TokenResponseSchema(access_token=access_token, refresh_token=refresh_token)
+    return {"access_token": access_token, 'token_type': 'bearer'}
 
 
 

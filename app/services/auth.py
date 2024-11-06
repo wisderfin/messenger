@@ -11,17 +11,19 @@ def hash_password(password: str) -> bytes:
 def check_password(password: str, hashed_password: bytes) -> bool:
     return checkpw(password.encode(), hashed_password)
 
-def get_access_token_jwt(data: dict) -> str:
-    payload = data.copy()
-    current_time = datetime.now(timezone.utc)
-    access_expire = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE)
-    payload['exp'] = current_time + access_expire
-    access_token = encode(
-        payload,
-        settings.JWT_KEY,
-        algorithm=settings.JWT_ALGORITHM
-        )
-    return access_token
+def get_access_token_jwt(name: str) -> str:
+    token = encode(
+        {
+            'alg': settings.JWT_ALGORITHM,
+            'typ': 'JWT',
+            'iss': 'messenger_auth',
+            'user': name,
+            'exp': settings.JWT_ACCESS_TOKEN_EXPIRE
+        },
+        settings.JWT_ACCESS_KEY,
+        settings.JWT_ALGORITHM
+    )
+    return token
 
 def get_refresh_token_jwt(data: dict) -> str:
     payload = data.copy()
@@ -30,7 +32,7 @@ def get_refresh_token_jwt(data: dict) -> str:
     payload['exp'] = current_time + refresh_expire
     refresh_token = encode(
         payload,
-        settings.JWT_KEY,
+        settings.JWT_REFRESH_KEY,
         algorithm=settings.JWT_ALGORITHM
         )
     return refresh_token

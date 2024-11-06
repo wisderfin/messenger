@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     DATABASE_HOST: str
 
     # jwt
-    JWT_KEY: str
+    JWT_ACCESS_KEY: str
+    JWT_REFRESH_KEY: str
     JWT_ALGORITHM: str
     JWT_ACCESS_TOKEN_EXPIRE: int
     JWT_REFRESH_TOKEN_EXPIRE: int
