@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from app.models import UserModel
-from app.services import hash_password
+from app.models.auth import UserModel
+from app.services.auth import hash_password
 
 
 class UsersUtils:

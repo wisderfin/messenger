@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, constr, NameEmail
+from pydantic import BaseModel, EmailStr, constr
 
 
 class SignUpBaseSchema(BaseModel):

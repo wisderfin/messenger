@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import DateTime, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
-from app.dependes import Base
+from app.models.base_model import Base
 
 
 class UserModel(Base):

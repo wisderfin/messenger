@@ -3,7 +3,7 @@ from jwt import encode, decode
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import settings
+from app.core import settings
 
 
 def hash_password(password: str) -> bytes:
@@ -29,7 +29,7 @@ async def get_jwt(name: str, key: str, exp: int) -> str:
 async def update_jwt(access: str, refresh: str, session: AsyncSession) -> str:
     payload = decode(access, settings.JWT_ACCESS_KEY, algorithms=[settings.JWT_ALGORITHM])
     user = payload.get('user')
-    from app.utils import UsersUtils
+    from app.repositories.auth import UsersUtils
     user = await UsersUtils().get(user)
 
     if user is None:

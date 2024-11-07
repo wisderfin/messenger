@@ -2,12 +2,12 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from app.dependes import get_async_session
-from app.routers.auth import oauth2_scheme
-from app.utils.auth import UsersUtils
+from app.core.database_session import get_async_session
+from app.api.v1.endpoints.auth import oauth2_scheme
+from app.repositories.auth import UsersUtils
 
-from .settings import settings
-from app.routers import auth_router
+from app.core.settings import settings
+from app.api.v1.endpoints.auth import router as auth_router
 
 app = FastAPI()
 

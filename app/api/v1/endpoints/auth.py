@@ -4,14 +4,12 @@ from jwt import ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from app.dependes import get_async_session
-from app.services import (hash_password,
-                          check_password,
-                          get_jwt,
-                          update_jwt)
-from app.schemas.auth import LoginRequestSchema, TokenResponseSchema, CreateUserSchema
-from app.utils import UsersUtils
-from app.settings import settings
+from app.core.database_session import get_async_session
+from app.services.auth import hash_password, check_password
+from app.services.auth import get_jwt, update_jwt
+from app.schemas.auth import CreateUserSchema
+from app.repositories.auth import UsersUtils
+from app.core.settings import settings
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
