@@ -5,11 +5,11 @@ from app.core.settings import settings
 
 
 engine = create_async_engine(
-            f'{settings.DATABASE_DRIVER}://'
-            f'{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@'
-            f'{settings.DATABASE_HOST}:{settings.DATABASE_PORT_FROM}/'
-            f'{settings.DATABASE_NAME}'
-        )
+    f"{settings.DATABASE_DRIVER}://"
+    f"{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@"
+    f"{settings.DATABASE_HOST}:{settings.DATABASE_PORT_FROM}/"
+    f"{settings.DATABASE_NAME}"
+)
 async_session_maker = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 

@@ -21,19 +21,16 @@ class UsersUtils:
         user = await self.get(username)
         return user is not None
 
-    async def create(self,
-                     name: str,
-                     username: str,
-                     email: str,
-                     password: str) -> UserModel | None:
+    async def create(
+        self, name: str, username: str, email: str, password: str
+    ) -> UserModel | None:
         if await self.__check(username):
             return None  # Пользователь с таким именем уже существует
 
         hashed_password = hash_password(password)
-        new_user = UserModel(name=name,
-                             email=email,
-                             username=username,
-                             password_hash=hashed_password)
+        new_user = UserModel(
+            name=name, email=email, username=username, password_hash=hashed_password
+        )
 
         self.session.add(new_user)
         try:

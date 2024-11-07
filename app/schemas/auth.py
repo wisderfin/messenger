@@ -9,7 +9,7 @@ class SignUpInputSchema(SignUpBaseSchema):
     name: str
     username: str
     email: str
-    password: constr(min_length=8) # type: ignore
+    password: constr(min_length=8)  # type: ignore
 
 
 class LoginRequestSchema(BaseModel):

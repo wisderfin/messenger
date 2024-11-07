@@ -1,36 +1,37 @@
-from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from jwt import ExpiredSignatureError
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Annotated
 
 
+from app.core.settings import settings
 from app.core.database_session import get_async_session
 from app.services.auth import hash_password, check_password
 from app.services.auth import get_jwt, update_jwt
 from app.schemas.auth import CreateUserSchema
 from app.repositories.auth import UsersUtils
-from app.core.settings import settings
-
-router = APIRouter(prefix='/auth', tags=['auth'])
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 
+router_auth = APIRouter(prefix="/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
-@router.post('/registration')
-async def registration(user: CreateUserSchema,
-            session: AsyncSession = Depends(get_async_session)):
-    user = await UsersUtils(session).create(
-        user.name,
-        user.username,
-        user.email,
-        user.password)
-    return user
 
-@router.post('/login')
-async def login(response: Response,
-                data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                session: AsyncSession = Depends(get_async_session)):
+@router_auth.post("/registration")
+async def registration(
+    user: CreateUserSchema, session: AsyncSession = Depends(get_async_session)
+):
+    user_model = await UsersUtils(session).create(
+        user.name, user.username, user.email, user.password
+    )
+    return user_model
+
+
+@router_auth.post("/login")
+async def login(
+    response: Response,
+    data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    session: AsyncSession = Depends(get_async_session),
+):
     user = await UsersUtils(session).get(data.username)
     if user is None:
         return HTTPException(status_code=401, detail="Invalid username")
@@ -38,15 +39,11 @@ async def login(response: Response,
         return HTTPException(status_code=401, detail="Invalid password")
 
     access_token = await get_jwt(
-        user.username,
-        settings.JWT_ACCESS_KEY,
-        settings.JWT_ACCESS_TOKEN_EXPIRE
-        )
+        user.username, settings.JWT_ACCESS_KEY, settings.JWT_ACCESS_TOKEN_EXPIRE
+    )
     refresh_token = await get_jwt(
-        user.username,
-        settings.JWT_REFRESH_KEY,
-        settings.JWT_REFRESH_TOKEN_EXPIRE
-        )
+        user.username, settings.JWT_REFRESH_KEY, settings.JWT_REFRESH_TOKEN_EXPIRE
+    )
 
     response.set_cookie(
         key="refresh_token_messenger",
@@ -54,19 +51,19 @@ async def login(response: Response,
         httponly=True,
         max_age=settings.JWT_REFRESH_TOKEN_EXPIRE,
         secure=True,
-        samesite="lax"
+        samesite="lax",
     )
 
+    return {"access_token": access_token, "token_type": "bearer"}
 
-    return {'access_token': access_token, 'token_type': 'bearer'}
 
-@router.post('/refresh')
+@router_auth.post("/refresh")
 async def refresh(
     access_token: Annotated[str, Depends(oauth2_scheme)],
     request: Request,
     response: Response,
-    session: AsyncSession = Depends(get_async_session)
-    ):
+    session: AsyncSession = Depends(get_async_session),
+):
     refresh_token = request.cookies.get("refresh_token_messenger")
     if refresh_token is None:
         raise HTTPException(status_code=404, detail="Refresh token not found")
@@ -81,31 +78,10 @@ async def refresh(
         httponly=True,
         max_age=settings.JWT_REFRESH_TOKEN_EXPIRE,
         secure=True,
-        samesite="lax"
+        samesite="lax",
     )
 
-    return {"access_token": access, 'token_type': 'bearer'}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return {"access_token": access, "token_type": "bearer"}
 
 
 # @router.post("/refresh", response_model=TokenResponseSchema)

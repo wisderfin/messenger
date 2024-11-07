@@ -1,0 +1,21 @@
+files: ^app/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace  # Удаляет пробелы в конце строк
+      - id: end-of-file-fixer    # Убедитесь, что файл заканчивается новой строкой
+      - id: check-yaml           # Проверяет синтаксис YAML
+      - id: check-added-large-files  # Проверяет большие файлы
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black  # Форматирование кода Python
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy  # Проверка типов для Python
+      
