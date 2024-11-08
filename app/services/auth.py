@@ -1,20 +1,23 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timedelta, timezone
 from bcrypt import hashpw, checkpw, gensalt
 from jwt import encode, decode
-from datetime import datetime, timedelta, timezone
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Response
 
 from app.core.settings import settings
 
+# TODO: make a function for cheked jwt
 
-def hash_password(password: str) -> bytes:
+
+def hash_password(password: str) -> str:
     return hashpw(password.encode(), gensalt(rounds=settings.BCRYPT_ROUNDS)).decode()
 
 
-def check_password(password: str, hashed_password: bytes) -> bool:
-    return checkpw(password.encode(), hashed_password)
+def check_password(password: str, hashed_password: str) -> bool:
+    return checkpw(password.encode(), hashed_password.encode())
 
 
-async def get_jwt(name: str, key: str, exp: int) -> str:
+async def get_jwt(name: str, key: str, exp: int) -> str:  # TODO: think about scheme
     current_time = datetime.now(timezone.utc)
     expire_time = timedelta(minutes=exp)
     token = encode(
@@ -38,8 +41,7 @@ async def update_jwt(
 
     if user is None:
         new_acces_token = None
-    # elif refresh not in DB: ---------------------------
-    #     return None
+    # TODO: make checked existence in database
     else:
         new_acces_token = await get_jwt(
             user.username, settings.JWT_ACCESS_KEY, settings.JWT_ACCESS_TOKEN_EXPIRE
@@ -64,3 +66,17 @@ async def update_jwt(
             settings.JWT_ALGORITHM,
         )
     return new_acces_token, new_refresh_token
+
+
+async def set_refresh_coockie(
+    response: Response,
+    value: str,
+) -> None:
+    response.set_cookie(
+        key=settings.COOCKIE_JWT_REFRESH_KEY,
+        value=value,
+        httponly=True,
+        max_age=settings.JWT_REFRESH_TOKEN_EXPIRE,
+        secure=True,
+        samesite="lax",
+    )

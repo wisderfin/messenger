@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE: int
     JWT_REFRESH_TOKEN_EXPIRE: int
 
+    # coockie
+    COOCKIE_JWT_REFRESH_KEY: str
+
     # bcrypt
     BCRYPT_ROUNDS: int
 

@@ -6,7 +6,7 @@ from app.models.auth import UserModel
 from app.services.auth import hash_password
 
 
-class UsersUtils:
+class UsersUtils:  # TODO: arguments for functions is schemes(or may be no, THINKS ABOUT IT)
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -17,7 +17,9 @@ class UsersUtils:
         user = result.scalar_one_or_none()
         return user
 
-    async def __check(self, username: str) -> bool:
+    async def __check(
+        self, username: str
+    ) -> bool:  # TODO: thinks about a level of private
         user = await self.get(username)
         return user is not None
 
@@ -25,15 +27,15 @@ class UsersUtils:
         self, name: str, username: str, email: str, password: str
     ) -> UserModel | None:
         if await self.__check(username):
-            return None  # Пользователь с таким именем уже существует
+            return None  # TODO: HTTP error
 
-        hashed_password = hash_password(password)
+        hashed_password = hash_password(password)  # make native (scheme)
         new_user = UserModel(
             name=name, email=email, username=username, password_hash=hashed_password
         )
 
         self.session.add(new_user)
-        try:
+        try:  # TODO: it's TRASH, corect it
             await self.session.commit()
             return new_user
         except IntegrityError:

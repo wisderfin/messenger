@@ -22,6 +22,6 @@ app.add_middleware(
 app.include_router(auth_router)
 
 
-@app.get("/")
+@app.get("/")  # TODO: TRASH
 async def root(auth=Depends(oauth2_scheme)):
     return {"message": "Hello World"}
