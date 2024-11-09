@@ -2,8 +2,8 @@ from pydantic import EmailStr, field_validator, model_validator
 from datetime import datetime
 from re import fullmatch
 
-from app.schemes.base_scheme import BaseScheme
-from app.utils import patterns
+from . import BaseScheme
+from utils import patterns
 
 
 class BaseUserScheme(BaseScheme):
@@ -80,6 +80,6 @@ class BaseJWTTokenScheme(BaseScheme):
     pass
 
 
-class OutputTokenScheme(BaseScheme):
+class OutputJWTTokenScheme(BaseJWTTokenScheme):
     access_token: str
     token_type: str = "bearer"

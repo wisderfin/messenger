@@ -6,7 +6,7 @@ from app.models.auth import UserModel
 from app.services.auth import hash_password
 
 
-class UsersUtils:  # TODO: arguments for functions is schemes(or may be no, THINKS ABOUT IT)
+class UserRepository:  # TODO: arguments for functions is schemes(or may be no, THINKS ABOUT IT)
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -35,7 +35,7 @@ class UsersUtils:  # TODO: arguments for functions is schemes(or may be no, THIN
         )
 
         self.session.add(new_user)
-        try:  # TODO: it's TRASH, corect it
+        try:  # TODO: it's TRASH, corect it and HTTP exeption
             await self.session.commit()
             return new_user
         except IntegrityError:

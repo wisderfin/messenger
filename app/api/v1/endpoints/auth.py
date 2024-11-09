@@ -4,26 +4,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 
-from app.core.settings import settings
-from app.core.database_session import get_async_session
-from app.services.auth import hash_password, check_password
-from app.services.auth import get_jwt, update_jwt
-from app.services.auth import set_refresh_coockie
-from app.schemes.auth import CreateUserScheme, OutputUserScheme
-from app.schemes.auth import OutputTokenScheme
-from app.repositories.auth import UsersUtils
+from core import settings
+from infrastructure import get_async_session
+from domain.repositories import UserRepository
+from domain.services.auth import (
+    get_jwt,
+    update_jwt,
+    set_refresh_coockie,
+    hash_password,
+    check_password,
+)
+from schemas import CreateUserScheme, OutputUserScheme, OutputTokenScheme
 
 
 router_auth = APIRouter(prefix="/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
+# TODO: OOP
 @router_auth.post("/registration")
 async def registration(
     user: CreateUserScheme, session: AsyncSession = Depends(get_async_session)
 ) -> OutputUserScheme:
     # TODO: validate email trought send code
-    user_model = await UsersUtils(session).create(
+    user_model = await UserRepository(session).create(
         user.name, user.username, user.email, user.password
     )
     return OutputUserScheme.model_validate(user_model)
@@ -37,14 +41,14 @@ async def login(
     data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
 ) -> OutputTokenScheme:
-    user = await UsersUtils(session).get(data.username)
+    user = await UserRepository(session).get(data.username)
 
     if user is None:
         return HTTPException(status_code=401, detail="Invalid username")
     elif not check_password(data.password, user.password_hash):
         return HTTPException(status_code=401, detail="Invalid password")
 
-    access_token = await get_jwt(
+    access_token = await get_jwt(  # TODO: anyway make with this
         user.username, settings.JWT_ACCESS_KEY, settings.JWT_ACCESS_TOKEN_EXPIRE
     )
     refresh_token = await get_jwt(

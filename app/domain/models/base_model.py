@@ -7,7 +7,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class BaseModel(Base):
+class BaseModel(Base):  # TODO: this is mixin
     __abstract__ = True
 
     created_at: Mapped[datetime] = mapped_column(

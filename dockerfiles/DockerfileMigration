@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir alembic asyncpg sqlalchemy pydantic pydantic-sett
 
 # Копируем код приложения
 COPY ../app/core ./app/core
-COPY ../app/models ./app/models
+COPY ../app/domain/models ./app/domain/models
 COPY ../migrations ./migrations
 COPY ../.env ./.env
 COPY ../alembic.ini ./alembic.ini
