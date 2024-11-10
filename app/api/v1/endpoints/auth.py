@@ -21,8 +21,8 @@ from app.api.v1.schemas.auth import (
 )
 
 
-router_auth = APIRouter(prefix="/auth", tags=["auth"])  # TODO: add v1 in path
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+router_auth = APIRouter(prefix="/v1/auth", tags=["auth"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
 
 
 # TODO: OOP
