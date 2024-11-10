@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class BaseSchema(BaseModel):  # TODO: reading a documentation for it
+class BaseSchema(BaseModel):
     class Config:
         from_attributes = True
