@@ -2,15 +2,15 @@ from pydantic import EmailStr, field_validator, model_validator
 from datetime import datetime
 from re import fullmatch
 
-from app.api.v1.schemas.base_schemas import BaseScheme
+from app.api.v1.schemas.base_schemas import BaseSchema
 from app.utils import patterns
 
 
-class BaseUserScheme(BaseScheme):
+class BaseUserSchema(BaseSchema):
     pass
 
 
-class CreateUserScheme(BaseUserScheme):  # TODO: you is well done. proud of you
+class CreateUserSchema(BaseUserSchema):
     name: str
     username: str
     email: EmailStr
@@ -66,7 +66,7 @@ class CreateUserScheme(BaseUserScheme):  # TODO: you is well done. proud of you
         return self
 
 
-class OutputUserScheme(BaseUserScheme):
+class OutputUserSchema(BaseUserSchema):
     id: int
     name: str
     username: str
@@ -76,10 +76,10 @@ class OutputUserScheme(BaseUserScheme):
     updated_at: datetime
 
 
-class BaseJWTTokenScheme(BaseScheme):
+class BaseJWTTokenSchema(BaseSchema):
     pass
 
 
-class OutputJWTTokenScheme(BaseJWTTokenScheme):
+class OutputJWTTokenSchema(BaseJWTTokenSchema):
     access_token: str
     token_type: str = "bearer"

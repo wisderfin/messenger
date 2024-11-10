@@ -15,9 +15,9 @@ from app.domain.services.auth import (
     check_password,
 )
 from app.api.v1.schemas.auth import (
-    CreateUserScheme,
-    OutputUserScheme,
-    OutputJWTTokenScheme,
+    CreateUserSchema,
+    OutputUserSchema,
+    OutputJWTTokenSchema,
 )
 
 
@@ -28,13 +28,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
 # TODO: OOP
 @router_auth.post("/registration")
 async def registration(
-    user: CreateUserScheme, session: AsyncSession = Depends(get_async_session)
-) -> OutputUserScheme:
+    user: CreateUserSchema, session: AsyncSession = Depends(get_async_session)
+) -> OutputUserSchema:
     # TODO: validate email trought send code
     user_model = await UserRepository(session).create(
         user.name, user.username, user.email, user.password
     )
-    return OutputUserScheme.model_validate(user_model)
+    return OutputUserSchema.model_validate(user_model)
 
 
 @router_auth.post(
@@ -44,7 +44,7 @@ async def login(
     response: Response,
     data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
-) -> OutputJWTTokenScheme:
+) -> OutputJWTTokenSchema:
     user = await UserRepository(session).get(data.username)
 
     if user is None:
@@ -61,7 +61,7 @@ async def login(
 
     await set_refresh_coockie(response, refresh_token)
 
-    return OutputJWTTokenScheme(access_token=access_token)
+    return OutputJWTTokenSchema(access_token=access_token)
 
 
 @router_auth.post("/refresh")
@@ -70,7 +70,7 @@ async def refresh(
     request: Request,
     response: Response,
     session: AsyncSession = Depends(get_async_session),
-) -> OutputJWTTokenScheme:
+) -> OutputJWTTokenSchema:
     refresh_token = request.cookies.get(settings.COOCKIE_JWT_REFRESH_KEY)
 
     if refresh_token is None:
@@ -82,4 +82,4 @@ async def refresh(
 
     await set_refresh_coockie(response, refresh)
 
-    return OutputJWTTokenScheme(access_token=access_token)
+    return OutputJWTTokenSchema(access_token=access_token)
