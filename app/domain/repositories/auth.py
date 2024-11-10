@@ -1,13 +1,16 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 
 from app.domain.models.auth import UserModel
 from app.domain.services.auth import hash_password
 
 
-class UserRepository:  # TODO: arguments for functions is schemes(or may be no, THINKS ABOUT IT)
-    def __init__(self, session: AsyncSession) -> None:
+class UserRepository:  # TODO: inheritance from BaseRepository(and make BaseRepository)
+    def __init__(
+        self, session: AsyncSession
+    ) -> None:  # TODO: thinks about generate session in injection class
         self.session = session
 
     async def get(self, username: str) -> UserModel | None:
@@ -17,17 +20,15 @@ class UserRepository:  # TODO: arguments for functions is schemes(or may be no, 
         user = result.scalar_one_or_none()
         return user
 
-    async def __check(
-        self, username: str
-    ) -> bool:  # TODO: thinks about a level of private
+    async def __check(self, username: str) -> bool:
         user = await self.get(username)
         return user is not None
 
     async def create(
         self, name: str, username: str, email: str, password: str
-    ) -> UserModel | None:
+    ) -> UserModel:
         if await self.__check(username):
-            return None  # TODO: HTTP error
+            raise HTTPException(status_code=409, detail="User already exists")
 
         hashed_password = hash_password(password)  # make native (scheme)
         new_user = UserModel(
@@ -35,9 +36,6 @@ class UserRepository:  # TODO: arguments for functions is schemes(or may be no, 
         )
 
         self.session.add(new_user)
-        try:  # TODO: it's TRASH, corect it and HTTP exeption
-            await self.session.commit()
-            return new_user
-        except IntegrityError:
-            await self.session.rollback()
-            return None
+        await self.session.commit()
+
+        return new_user
