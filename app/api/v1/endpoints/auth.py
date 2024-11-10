@@ -4,20 +4,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
 
 
-from core import settings
-from infrastructure import get_async_session
-from domain.repositories import UserRepository
-from domain.services.auth import (
+from app.core.settings import settings
+from app.infrastructure.database import get_async_session
+from app.domain.repositories.auth import UserRepository
+from app.domain.services.auth import (
     get_jwt,
     update_jwt,
     set_refresh_coockie,
     hash_password,
     check_password,
 )
-from schemas import CreateUserScheme, OutputUserScheme, OutputTokenScheme
+from app.api.v1.schemas.auth import (
+    CreateUserScheme,
+    OutputUserScheme,
+    OutputJWTTokenScheme,
+)
 
 
-router_auth = APIRouter(prefix="/auth", tags=["auth"])
+router_auth = APIRouter(prefix="/auth", tags=["auth"])  # TODO: add v1 in path
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
@@ -40,7 +44,7 @@ async def login(
     response: Response,
     data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
-) -> OutputTokenScheme:
+) -> OutputJWTTokenScheme:
     user = await UserRepository(session).get(data.username)
 
     if user is None:
@@ -57,7 +61,7 @@ async def login(
 
     await set_refresh_coockie(response, refresh_token)
 
-    return OutputTokenScheme(access_token=access_token)
+    return OutputJWTTokenScheme(access_token=access_token)
 
 
 @router_auth.post("/refresh")
@@ -66,7 +70,7 @@ async def refresh(
     request: Request,
     response: Response,
     session: AsyncSession = Depends(get_async_session),
-) -> OutputTokenScheme:
+) -> OutputJWTTokenScheme:
     refresh_token = request.cookies.get(settings.COOCKIE_JWT_REFRESH_KEY)
 
     if refresh_token is None:
@@ -78,4 +82,4 @@ async def refresh(
 
     await set_refresh_coockie(response, refresh)
 
-    return OutputTokenScheme(access_token=access_token)
+    return OutputJWTTokenScheme(access_token=access_token)

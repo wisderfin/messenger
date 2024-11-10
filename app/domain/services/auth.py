@@ -4,7 +4,7 @@ from bcrypt import hashpw, checkpw, gensalt
 from jwt import encode, decode
 from fastapi import Response
 
-from core import settings
+from app.core.settings import settings
 
 # TODO: make a function for cheked jwt
 

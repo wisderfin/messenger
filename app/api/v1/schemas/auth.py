@@ -2,8 +2,8 @@ from pydantic import EmailStr, field_validator, model_validator
 from datetime import datetime
 from re import fullmatch
 
-from . import BaseScheme
-from utils import patterns
+from app.api.v1.schemas.base_schemas import BaseScheme
+from app.utils import patterns
 
 
 class BaseUserScheme(BaseScheme):

@@ -2,9 +2,9 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 
-from core import settings
-from api.v1.endpoints.auth import oauth2_scheme
-from api.v1.endpoints.auth import router_auth as auth_router
+from app.core.settings import settings
+from app.api.v1.endpoints.auth import oauth2_scheme
+from app.api.v1.endpoints.auth import router_auth
 
 app = FastAPI()
 
@@ -17,7 +17,7 @@ app.add_middleware(
 )
 
 
-app.include_router(auth_router)
+app.include_router(router_auth)
 
 
 @app.get("/")  # TODO: TRASH

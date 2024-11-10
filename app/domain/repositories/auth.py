@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from app.models.auth import UserModel
-from app.services.auth import hash_password
+from app.domain.models.auth import UserModel
+from app.domain.services.auth import hash_password
 
 
 class UserRepository:  # TODO: arguments for functions is schemes(or may be no, THINKS ABOUT IT)
