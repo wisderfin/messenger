@@ -1,2 +1,2 @@
-from .base_model import Base, BaseModel
+from .base_model import Base, ModelMixin
 from .auth import UserModel

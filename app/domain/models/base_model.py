@@ -7,7 +7,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class BaseModel(Base):  # TODO: this is mixin
+class ModelMixin(Base):
     __abstract__ = True
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
