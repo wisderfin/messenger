@@ -26,7 +26,7 @@ class UserRepository:  # TODO: inheritance from BaseRepository(and make BaseRepo
 
     async def create(
         self, name: str, username: str, email: str, password: str
-    ) -> UserModel:
+    ) -> UserModel | None:
         if await self.__check(username):
             raise HTTPException(status_code=409, detail="User already exists")
 
