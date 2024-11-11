@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta, timezone
+from fastapi import HTTPException
 from bcrypt import hashpw, checkpw, gensalt
 from jwt import encode, decode
 from fastapi import Response
@@ -30,7 +31,7 @@ async def get_jwt(name: str, key: str, exp: int) -> str:  # TODO: think about sc
 
 async def update_jwt(
     access: str, refresh: str, session: AsyncSession
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, str | None] | None:
     payload = decode(
         access, settings.JWT_ACCESS_KEY, algorithms=[settings.JWT_ALGORITHM]
     )
@@ -40,8 +41,8 @@ async def update_jwt(
     user = await UserRepository(session).get(user)
 
     if user is None:
-        new_acces_token = None  # TODO: httpp exeption
-    # TODO: make checked existence in database
+        raise HTTPException(status_code=404, detail="User not found")
+        # TODO: make checked existence in database
     else:
         new_acces_token = await get_jwt(
             user.username, settings.JWT_ACCESS_KEY, settings.JWT_ACCESS_TOKEN_EXPIRE
@@ -53,7 +54,9 @@ async def update_jwt(
     ).get("exp")
 
     if exp < current_time.timestamp():
-        new_refresh_token = None
+        raise HTTPException(
+            status_code=404, detail="Time of life for refresh token is over"
+        )
     else:
         expire_time = timedelta(minutes=settings.JWT_REFRSH_TOKEN_EXPIRE)
         new_refresh_token = encode(

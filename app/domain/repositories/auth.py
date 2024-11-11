@@ -30,7 +30,7 @@ class UserRepository:  # TODO: inheritance from BaseRepository(and make BaseRepo
         if await self.__check(username):
             raise HTTPException(status_code=409, detail="User already exists")
 
-        hashed_password = hash_password(password)  # make native (scheme)
+        hashed_password = hash_password(password)
         new_user = UserModel(
             name=name, email=email, username=username, password_hash=hashed_password
         )
