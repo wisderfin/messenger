@@ -25,7 +25,6 @@ router_auth = APIRouter(prefix="/v1/auth", tags=["auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="v1/auth/login")
 
 
-# TODO: OOP
 @router_auth.post("/registration")
 async def registration(
     user: CreateUserSchema, session: AsyncSession = Depends(get_async_session)

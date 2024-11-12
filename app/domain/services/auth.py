@@ -31,7 +31,7 @@ async def get_jwt(name: str, key: str, exp: int) -> str:  # TODO: think about sc
 
 async def update_jwt(
     access: str, refresh: str, session: AsyncSession
-) -> tuple[str | None, str | None] | None:
+) -> tuple[str | None, str | None]:
     payload = decode(
         access, settings.JWT_ACCESS_KEY, algorithms=[settings.JWT_ALGORITHM]
     )
